@@ -47,6 +47,8 @@ $ vagrant up
 ~~~
 
 SSHログイン.
+Windowsの人は`ssh`コマンドを使えないので適当にググってもらえると.
+(putty認証とかで行けたかと.)
 ~~~
 $ cd ~/vagrant/projects/trusty/
 $ vagrant ssh
@@ -71,7 +73,7 @@ apt-get install ubuntu-desktop
 apt-get install gdm
 dpkg-reconfigure gdm
 ~~~
-を打ち込めばOK,ubuntu-desktopだけでもいけるのかもしれない.
+を打ち込めばOK,ubuntu-desktopだけでいい気がする(未確認).
 
 なお、Vagrant設定ファイルにある下記をコメントアウトすれば,VirtualBoxからGUIで起動できる.
 ~~~
@@ -84,9 +86,62 @@ dpkg-reconfigure gdm
   end
 ~~~
 
+
 ### Python
 
+1. pyenv
 
+~~~
+git clone https://github.com/yyuu/pyenv.git ~/.pyenv
+~~~
+
+2. .bashrcに設定
+
+以下を書き込む.
+~~~
+export PYENV_ROOT="${HOME}/.pyenv"
+if [ -d "${PYENV_ROOT}" ]; then
+  export PATH=${PYENV_ROOT}/bin:$PATH
+  eval "$(pyenv init -)"
+fi
+~~~
+
+書き込んだ後に実行.
+~~~
+source ~/.bashrc
+~~~
+
+3. pyenv-virtualenv
+
+環境切り替えに使う.
+~~~
+git clone git://github.com/yyuu/pyenv-virtualenv.git ~/.pyenv/plugins/pyenv-virtualenv
+souce ~/.bashrc
+~~~
+
+4. Anaconda install
+
+3系の最新版を入れる.
+~~~
+pyenv install -l | grep ana
+# 最新版を確認してそれを入れれば良いかと.
+pyenv install anaconda3-4.0.0
+pyenv rehash
+pyenv global anaconda3-4.0.0
+~~~
+
+まぁまぁ時間かかる.
+
+5. 開発用の環境に切り出して使用
+
+~~~
+conda create -n 環境名 python=3.X ライブラリorAnaconda
+~~~
+
+仮想環境のアクティブ化.
+~~~
+pyenv activate 環境名
+~~~
 
 
 ### DL framework
