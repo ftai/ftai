@@ -1,7 +1,7 @@
 
 import quandl as ql
 
-ql.ApiConfig.api_key = 'CbzNMfBFSFEFsiNNAe97' # APIKeyを置かないと取得制限
+ql.ApiConfig.api_key = 'hogehoge' # APIKeyを置かないと取得制限
 
 # 基本的な使い方は公式参照：https://www.quandl.com/
 df_GDP = ql.get('ODA/JPN_NGDP_R') # 日本GDP
