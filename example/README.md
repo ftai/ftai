@@ -13,11 +13,11 @@
 以下ではJupyter Notebookでの記載を原則とする.
 
 * Chainer
+* Keras
 * TensorFlow(準備中)
-* Keras(準備中)
 
 周辺機能
 
-* Quandl(準備中)
+* Quandl
 * Docker(仮)
 * DQN(仮)
