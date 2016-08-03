@@ -14,6 +14,7 @@
 この辺は, "プログラマのためのDockerの教科書"の７章を参考にした.
 
 手順
+
 1. AWSにアカウントを作る.
   1. アカウントを作る.
   2. AWSからIAMを選択.そこでユーザ設定を行い,アクセスキーIDとシークレットアクセスキーをメモる.
@@ -57,8 +58,7 @@ docker-machine rm aws01 # 消す.
 ```
 
 もし,すぐ使用しないなら,ちゃんと切っておいたほうがよい.
-*私は２つのインスタンスをrunした状態で2日放置しておいたら,40$
-くらい請求来た.*
+**私は２つのインスタンスをrunした状態で2日放置しておいたら,40$ほど請求が来た.**
 
 
 ## dockr環境の構築.
@@ -103,8 +103,7 @@ docker-machine ssh aws01
    sudo nvida-smi
   ```
 
-2. Dockerのインストール
-  公式に従う.
+2. Dockerのインスト. 公式に従う.
   ```
   curl -s 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | sudo apt-key add --import
   sudo apt-get update && sudo apt-get install apt-transport-https
@@ -115,29 +114,31 @@ docker-machine ssh aws01
   sudo reboot
   ```
 3. nvidiaDockerのインストール
-```
+  ```
   wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.0-rc/nvidia-docker_1.0.0.rc-1_amd64.deb
   sudo dpkg -i /tmp/nvidia-docker_1.0.0.rc-1_amd64.deb && rm /tmp/nvidia-docker*.deb
-```
+  ```
+
 4. Dockerfileの作成.
   以下のような雛形を作る.
+  例えば, Dockerfileというファイルを~/docker/tensorflowで作成する.
+
   ```
-  Dockerfileを~/docker/tensorflow/Dockerfileで作成.
   FROM nvidia/cuda:7.5-cudnn5-devel
   RUN apt-get update \
    && apt-get install -y --no-install-recommends python-pip python-dev \
    && pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.9.0-cp27-none-linux_x86_64.whl \
    && rm -rf /var/lib/apt/lists/*
   RUN ln -s /usr/local/nvidia/lib64/libcuda.so.1 /usr/lib/x86_64-linux-gnu/libcuda.so
-```
+ ```
+
 5. 実行.
   Dockerfileのあるディレクトリで, build.
 ```
   sudo docker build -t local:tf .
-
   sudo nvidia-docker run --rm -it local:tf /bin/bash
- ```
-注意:
+```
+#### 注意:
   Dockerfileは作らなくても, Dockerhubというサイトで公開されており、
   以下のコマンドから取得できる.
   ```
