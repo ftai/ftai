@@ -5,7 +5,7 @@
 その過程をメモったものです.マサカリ大歓迎です＼(^o^)／
 
 ## TODO
- 1. 他のライブラリやマシン環境に対応したDockerfileの準備.
+ 1. ~~他のライブラリやマシン環境に対応したDockerfileの準備.~~
  2. AWSのインスタンス時間の自動管理.  
 
 ## AWS環境構築
@@ -134,15 +134,15 @@ docker-machine ssh aws01
 
 5. 実行.
   Dockerfileのあるディレクトリで, build.
-```
-  sudo docker build -t local:tf .
-  sudo nvidia-docker run --rm -it local:tf /bin/bash
-```
+  ```
+   sudo docker build -t local:tf .
+   sudo nvidia-docker run --rm -it local:tf /bin/bash
+  ```
 #### 注意:
   Dockerfileは作らなくても, Dockerhubというサイトで公開されており、
   以下のコマンドから取得できる.
   ```
-  docker pull ww24/deep-learning
+  docker pull gcr.io/tensorflow/tensorflow:latest-gpu
   ```
   また、chainer, caffe等の全部入りがある.
   ```
@@ -151,3 +151,55 @@ docker-machine ssh aws01
   [1](http://www.slideshare.net/ww24jp/docker-deep-learning),  [2](http://www.slideshare.net/yutakashino/chainer-meetup2016-0702)のスライドが参考になる.
   ただし、上記における環境での動作確認はしていない.
   また,エラーについては[ここ](http://www.kabuku.co.jp/developers/errors-with-tensorflow-on-gpu)に詳しい.
+
+## jupyter notebookを使ってみる.
+1. aws内で実行環境を作る.  
+ ```
+ mkdir ~/share && cd ~/share  
+ git clone https://github.com/ftai/ftai.git　#ftaiを落とす.
+
+ # kerasとchainerを落とす（確認用にexampleを使いたかっただけ)
+ mkdir ~/share/examples && cd ~/share/examples
+ git clone --depth=1 https://github.com/fchollet/keras.git
+ git clone --depth=1 https://github.com/pfnet/chainer.git
+
+ ```
+
+2. Dockerfileからimageを作る.
+ ```
+  # dockerfileのあるフォルダに移動し, buildする.
+  # 今回作った環境は, miniconda+keras+theano+tensorflow+chainer.
+  cd ~/share/ftai/docker/cuda_v7.5/py35  
+  sudo nvidia-docker build -t local:dl-py3 . #local:dl-py3はimageの名前.　
+
+  #実行. -pはjupyter notebookを通すためのport番号. -vはホスト環境との共有フォルダを通す.　
+  sudo nvidia-docker run -it -p 8888:8888 -v ~/share:/root/share local:dl-py3  
+```
+ちなみに, イメージとコンテナのサイズが大きいので,いくつも作るとすぐにawsの容量がいっぱいになる.
+そういう時は、以下のコマンドで不要なそれらを消去したほうが良い.
+ ```  
+  sudo docker rmi "イメージのID or 名前"　# イメージの削除.
+  sudo docker rm  "コンテナのID or 名前"  # コンテナの削除.
+
+  #最新のコンテナを削除.aliasを通しておくと便利.
+  alias dl="docker ps -a -q"
+  sudo docker rm `dl`
+ ```   
+3. 例えば, chainerを動かしてみる.
+ ```  
+  cd ~/share/examples/chainer/examples/mnist #mnistの分類で試す.
+  python train_mnist.py -g 0 # gpu付き.
+  python train_mnist.py  # gpu無し.
+ ```
+ 実感としては,15倍から20倍くらい速くなる. kerasも同様.
+
+4. jupyter notebookを動かす.
+ ```  
+   jupyter-notebook
+ ```
+ 開いた状態で, ブラウザからhttp://[EC2インスタンスのIP]:8888/ でアクセスできる.
+ EC2インスタンスのIPは手元で,
+ ```  
+   docker-machine ip aws01
+ ```
+ で調べられる.
